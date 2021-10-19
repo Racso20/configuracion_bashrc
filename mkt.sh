@@ -3,33 +3,41 @@ function mkt(){
 	local OPTIND
 	local OPTARG
 	local option
-	usage="$(basename "$0") [-h -m -i] -- Programa para realizar HTB ordenado
+	local tipo = "HTB"
+
+	usage="$(basename "$0") [-h -m -i] [-t] -- Programa para realizar HTB ordenado
 donde:
     -h   Muestra el menu de ayuda
     -m   Nombre de la maquina a realizar
-    -i   IP de la maquina a realizar"
-    	local usuario=$(whoami)
+    -i   IP de la maquina a realizar
+    -t   Carpeta raiz (default HTB)"
 
+    	local usuario=$(whoami)
 	while getopts 'm:i:h:' option; do
 		case "$option" in
 			h) echo "$usage"
 			exit
 			;;
+
 			m) maquina=$OPTARG
 			;;
+
 			i) ip=$OPTARG
 			;;
+
+			t) tipo=$OPTARG
+			;;
+
 			:) printf "missing argument for -%s\n" "$OPTARG" >&2
 			echo "$usage" >&2
-			exit 1
 			;;
+
 			\?) printf "illegal option: -%s\n" "$OPTARG" >&2
 			echo "$usage" >&2
-			exit 1
 			;;
+
 			*)printf "missing argument for -%s\n" "$OPTARG" >&2
 			echo "$usage" >&2
-			exit 1
 			;;
 		esac
 	done
@@ -39,14 +47,12 @@ donde:
 		echo "la maquina no puede ser nula"
 		seguir=0
 	fi
-
 	if [ -z "$ip" ]; then
 		echo "la IP no puede ser nula"
 		seguir=0
 	fi
-
 	if [ $seguir == 1 ]; then
-		ruta="/home/$usuario/Documentos/HTB/"$maquina
+		ruta="/home/$usuario/Documentos/"$tipo"/"$maquina
 		mkdir -p $ruta/{nmap,contenido,exploits,scripts}
 		file='/etc/hosts'
 		cargar=1
