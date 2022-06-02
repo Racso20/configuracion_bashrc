@@ -72,5 +72,6 @@ function mkt(){
 		echo "Finalizo correctamente"
 	else
 		echo "$usage" >&2
+		exit 1
 	fi
 } 
