@@ -51,7 +51,7 @@ function mkt(){
 	fi
 	
 	if [ $seguir == 1 ]; then
-		ruta="/home/$usuario/Documentos/$tipo/$maquina"
+		ruta="/home/$usuario/Documentos/Maquinas/$tipo/$maquina"
 		mkdir -p $ruta/{nmap,contenido,exploits,scripts}
 		file='/etc/hosts'
 		cargar=1
