@@ -1,0 +1,90 @@
+#!/usr/bin/python3
+import requests
+import json
+import argparse
+import signal
+import time
+import readchar
+
+whatmydns ="https://www.whatsmydns.net"
+servers='{"data":[{"id":"zebyoarb","lugar": "California", "pais":"USA"},{"id":"gobwmxbm","lugar": "Dallas", "pais":"USA"},{"id":"dabkekqb","lugar": "Miami", "pais":"USA"},{"id":"oajdnppj","lugar": "Albama", "pais":"USA"},{"id":"oajdyabp","lugar": "Virginia", "pais":"USA"},{"id":"zgbgowpb","lugar": "St. John", "pais":"Canada"},{"id":"vdbvgajp","lugar": "Melbourne ", "pais":"Australia"},{"id":"dajkerqj","lugar": "Adelaide ", "pais":"Australia"},{"id":"dabkemab","lugar": "Chiyoda", "pais":"Japan"},{"id":"dzbxgkvj","lugar": "Weert", "pais":"Netherlands"},{"id":"dajkegaj","lugar": "Ciudad de Mexico", "pais":"Mexico"},{"id":"pqjoelej","lugar": "Seoul", "pais":"South Korea"},{"id":"zgbgdkjn","lugar": "Dortmund", "pais":"Germany"},{"id":"ypjmlglb","lugar": "New York", "pais":"USA"},{"id":"gxbreqjo","lugar": "Rhode Island", "pais":"USA"},{"id":"gobwzdjm","lugar": "Beaconsfield ", "pais":"Canada"},{"id":"dabkezmb","lugar": "Culiacan", "pais":"Mexico"},{"id":"qrjnpnnj","lugar": "Santa Cruz do Sul", "pais":"Brazil"},{"id":"zgbgdkjn","lugar": "Almeria", "pais":"Spain"},{"id":"dxjzneaj","lugar": "Manchester", "pais":"UK"},{"id":"vxjlnzlj","lugar": "Lille", "pais":"France"},{"id":"oabdnvpb","lugar": "Frankfurt", "pais":"Germany"},{"id":"dxbznoyb","lugar": "Zizers", "pais":"Switzerland"},{"id":"","lugar": "Sassuolo", "pais":"Italy"},{"id":"ywjqnwqb","lugar": "Cullinan", "pais":"South Africa"},{"id":"qrbnpxgb","lugar": "Antalya", "pais":"Turkey"},{"id":"qvbameqb","lugar": "Vladivostok", "pais":"Russia"},{"id":"vzgjgyjn","lugar": "Peshawar", "pais":"Pakistan"},{"id":"pqjoeakj","lugar": "Delhi", "pais":"India"},{"id":"oabdxmbp","lugar": "Bangkok", "pais":"Thailand"},{"id":"dxjzopbq","lugar": "Kota Kinabalu", "pais":"Malaysia"},{"id":"ywbqlaja","lugar": "Singapore", "pais":"Singapore"},{"id":"zgbgxkjn","lugar": "Beijing", "pais":"China"}]}'
+cantidad = 1
+informacion = 0
+error = 0
+valores = []
+
+parser = argparse.ArgumentParser(description='Programa para listar equipos en la red')
+parser.add_argument('-t', '--tipo', help="Tipo de Registro que se desea revisar (default DNS)", default="NS")
+parser.add_argument('-d', '--dominio', help="Dominio que se desea revisar (default Google)",default="google.com")
+args = parser.parse_args()
+
+
+ 
+def handler(signum, frame):
+    msg = "Desea salir de la aplicación? [y]/[N] "
+    print(msg, end="", flush=True)
+    res = readchar.readchar()
+    if res == 'y':
+        print("")
+        exit(1)
+    else:
+        print("", end="\r", flush=True)
+        print(" " * len(msg), end="", flush=True) # clear the printed line
+        print("    ", end="\r", flush=True)
+ 
+ 
+signal.signal(signal.SIGINT, handler)
+def agregar_valor(valor):
+    global valores
+    if(valor not in valores):
+        valores.append(valor)
+        
+def consultar_dns(server, tipo, dominio):
+    global whatmydns,cantidad,informacion,error
+    
+    try:
+        url=whatmydns+"/api/details?server="+server['id']+"&type="+tipo+"&query="+dominio
+        r = requests.get(url)
+        data = r.json()['data']
+        datos_json = json.dumps(data)
+        valor = json.loads(datos_json)[0]
+        
+        print("Server "+str(cantidad))
+        for x in valor['response']:
+            print(x)
+            agregar_valor(x)
+        informacion+=1
+    except:
+        cantidad -=1
+        error+=1
+        print("No se pudo obtener información")
+    print("-------")
+    
+def ver_propagacion(tipo, dominio):
+    global servers, cantidad
+    datos = json.loads(servers)
+    
+    for x in datos:
+        for y in datos[x]:
+            consultar_dns(y,tipo,dominio)
+            cantidad+=1
+            
+def registrado(dominio):
+    global whatmydns
+    url=whatmydns+"/api/domain?q="+dominio
+    r = requests.get(url)
+    data = r.json()['data']
+    datos_json = json.dumps(data)
+    print("Dueño: "+json.loads(datos_json)['owner'])
+    print("Registrado en: "+json.loads(datos_json)['registrar'])
+    print()
+            
+if __name__ == "__main__":
+    registrado(args.dominio)
+    ver_propagacion(args.tipo,args.dominio)
+    print("Estadísticas para el dominio "+args.dominio)
+    print("    [+] Se obtuvieron información en "+str(informacion)+" Servidores, los valores detectados fueron:")
+    for va in valores:
+        print("        [-] "+va)
+    print("    [+] No se obtuvieron información en "+str(error)+" Servidores")
+    
