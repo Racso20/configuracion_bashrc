@@ -49,15 +49,15 @@ def consultar_dns(server, tipo, dominio):
         datos_json = json.dumps(data)
         valor = json.loads(datos_json)[0]
         
-        print("Server "+str(cantidad))
-        for x in valor['response']:
-            if(len(x)>0):
+        if(len(valor['response'])>0):
+            informacion+=1
+            print("Server "+str(cantidad))
+            for x in valor['response']:
                 print(x)
                 agregar_valor(x)
-                informacion+=1
-            else:
-                print("No se pudo obtener información")
-                error+=1
+        else:
+            print("No se pudo obtener información")
+            error+=1
     except:
         cantidad -=1
         error+=1
