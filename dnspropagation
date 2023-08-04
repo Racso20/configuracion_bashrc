@@ -72,8 +72,15 @@ def ver_propagacion(tipo, dominio):
 def registrado(dominio):
     global whatmydns
     cdn=""
-    for x in range(dominio.find(".")+1,len(dominio)):
-        cdn=cdn+dominio[x]
+    for x in range(len(dominio)):
+        if(dominio[x] == "."):
+            test+=1
+    
+    if(test>1):
+        for x in range(dominio.find(".")+1,len(dominio)):
+            cdn=cdn+dominio[x]
+    else:
+        cdn=dominio
     url=whatmydns+"/api/domain?q="+cdn
     r = requests.get(url)
     data = r.json()['data']
