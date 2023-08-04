@@ -51,9 +51,13 @@ def consultar_dns(server, tipo, dominio):
         
         print("Server "+str(cantidad))
         for x in valor['response']:
-            print(x)
-            agregar_valor(x)
-        informacion+=1
+            if(len(x)>0):
+                print(x)
+                agregar_valor(x)
+                informacion+=1
+            else:
+                print("No se pudo obtener información")
+                error+=1
     except:
         cantidad -=1
         error+=1
@@ -71,6 +75,7 @@ def ver_propagacion(tipo, dominio):
             
 def registrado(dominio):
     global whatmydns
+    test=0
     cdn=""
     for x in range(len(dominio)):
         if(dominio[x] == "."):
